@@ -50,6 +50,17 @@ export const useAuthStore = defineStore('auth', {
         console.error('Error logging out: ', error);
       }
     },
+    async checkAuth() {
+      const user = auth.currentUser;
+      if (user) {
+        this.user = user;
+        this.isUserLoggedIn = true;
+        return true;
+      }
+      this.user = null;
+      this.isUserLoggedIn = false;
+      return false;
+    },
     setUser(user: User | null) {
       this.user = user;
     },
