@@ -1,17 +1,40 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { RouterLink, useRouter } from 'vue-router';
+
+const authStore = useAuthStore();
+
+const router = useRouter();
 
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
+const register = async () => {
+  if (password.value !== confirmPassword.value) {
+    alert('Las contraseñas no coinciden');
+    return;
+  }
+
+  const response = await authStore.register(email.value, password.value);
+
+  if (response) {
+    router.push({ name: 'home-view' });
+    email.value = '';
+    password.value = '';
+    confirmPassword.value = '';
+    return;
+  }
+
+}
 
 
 </script>
 
 <template>
 
-  <form class="flex flex-col gap-4 p-4 bg-gray-400 rounded">
+  <form @submit.prevent="register" class="flex flex-col gap-4 p-4 bg-gray-400 rounded">
     <label class="input input-bordered flex items-center gap-2">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 opacity-70">
         <path
@@ -38,6 +61,11 @@ const confirmPassword = ref('');
       <input type="password" class="grow" v-model="confirmPassword" />
     </label>
     <button class="btn btn-primary">Registrar</button>
+
+    <p class="text-black text-xs text-center">Ya tienes cuenta? Inicia sesión <span class="font-bold">
+        <RouterLink to="/auth/login">aquí</RouterLink>
+      </span>!
+    </p>
   </form>
 
 </template>

@@ -3,7 +3,8 @@ import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
-import { auth } from '../firebaseConfig';
+import isAuthenticatedGuard from '@/auth/is-authenticated.guard';
+import isNotAuthenticatedGuard from '@/auth/is-not-authenticated.guard';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,11 +12,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      beforeEnter: [isAuthenticatedGuard],
       component: () => import('@/layouts/HomeLayout.vue'),
       children: [
         {
           path: '/',
-          name: 'home',
+          name: 'home-view',
           component: HomeView,
         },
       ],
@@ -23,6 +25,7 @@ const router = createRouter({
     {
       path: '/auth',
       name: 'auth',
+      beforeEnter: [isNotAuthenticatedGuard],
       component: () => import('@/layouts/AuthLayout.vue'),
       children: [
         {
@@ -44,18 +47,6 @@ const router = createRouter({
       component: NotFoundView,
     },
   ],
-});
-
-router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const currentUser = auth.currentUser;
-  console.log(currentUser);
-
-  if (requiresAuth && !currentUser) {
-    next('/auth/login');
-  } else {
-    next();
-  }
 });
 
 export default router;
